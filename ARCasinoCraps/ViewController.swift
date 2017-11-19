@@ -63,6 +63,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.pause()
     }
     
+    // I want to detect only the first screen touch
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let touchLocation = touch.location(in: sceneView)
+            
+            // to convert the two dimentional touch.location into a 3d
+            let results = sceneView.hitTest(touchLocation, types: .existingPlaneUsingExtent)
+            if !(results.isEmpty) {
+                print("Touched the plane")
+            } else {
+                print("Touched somewhere else")
+            }
+        }
+    }
+    
     // Tells the delegate that a SceneKit node corresponding to a new AR anchor has been added to the scene
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         if anchor is ARPlaneAnchor {
