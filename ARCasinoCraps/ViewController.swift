@@ -18,7 +18,6 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
         
         // Set the view's delegate
         sceneView.delegate = self
@@ -107,6 +106,15 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
         rollAll()
+    }
+    
+    
+    @IBAction func removeAllDice(_ sender: UIBarButtonItem) {
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                dice.removeFromParentNode()
+            }
+        }
     }
     
     // Tells the delegate that a SceneKit node corresponding to a new AR anchor has been added to the scene
