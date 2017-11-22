@@ -12,6 +12,8 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
     
+    var diceArray = [SCNNode]()
+    
     @IBOutlet var sceneView: ARSCNView!
     
     override func viewDidLoad() {
@@ -73,16 +75,38 @@ class ViewController: UIViewController, ARSCNViewDelegate {
                     diceNode.position = SCNVector3(x: hitResults.worldTransform.columns.3.x,
                                                    y: hitResults.worldTransform.columns.3.y + diceNode.boundingSphere.radius, // to have the dice sit ON the plane, and not get cut by it
                                                    z: hitResults.worldTransform.columns.3.z)
-                    sceneView.scene.rootNode.addChildNode(diceNode)
-                
-                    // Generate random numbers for the dices
-                    let randomX = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
-                    let randomZ = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+                    diceArray.append(diceNode)
                     
-                    diceNode.runAction(SCNAction.rotateBy(x: CGFloat(randomX * 10), y: 0, z: CGFloat(randomZ * 10), duration: 0.5)) // I'm multiplying by 10 in order to make the dice roll look more realistic
+                    sceneView.scene.rootNode.addChildNode(diceNode)
+                    roll(dice: diceNode)
                 }
             }
         }
+    }
+    
+    func rollAll() {
+        if !diceArray.isEmpty {
+            for dice in diceArray {
+                roll(dice: dice)
+            }
+        }
+    }
+    
+    func roll(dice: SCNNode) {
+        // Generate random numbers for the dices
+        let randomX = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+        let randomZ = Float(arc4random_uniform(4) + 1) * (Float.pi/2)
+        
+        dice.runAction(SCNAction.rotateBy(x: CGFloat(randomX * 5), y: 0, z: CGFloat(randomZ * 5), duration: 0.5)) // I'm multiplying by 10 in order to make the dice roll faster and look and more realistic
+        
+    }
+    
+    @IBAction func rollAgain(_ sender: UIBarButtonItem) {
+        rollAll()
+    }
+    
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+        rollAll()
     }
     
     // Tells the delegate that a SceneKit node corresponding to a new AR anchor has been added to the scene
