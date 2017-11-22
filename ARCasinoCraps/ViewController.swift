@@ -22,21 +22,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Set the view's delegate
         sceneView.delegate = self
         
-        //        let cube = SCNBox(width: 0.1, height: 0.1, length: 0.1, chamferRadius: 0.01)
-        //        let sphere = SCNSphere(radius: 0.2)
-        //        let material = SCNMaterial()
-        //
-        //        material.diffuse.contents = UIImage(named: "art.scnassets/moon.jpg")
-        //
-        //        sphere.materials = [material]
-        //        let node = SCNNode()
-        //        node.position = SCNVector3(x: 0, y: 0.1, z: -0.5)
-        //        node.geometry = sphere
-        //
-        //        sceneView.scene.rootNode.addChildNode(node)
         sceneView.autoenablesDefaultLighting = true
-        
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -67,20 +53,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             // to convert the two dimentional touch.location into a 3d
             let results = sceneView.hitTest(touchLocation, types: .existingPlaneUsingExtent)
             
-            if let hitResults = results.first {
-                // Create a new scene
-                let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
-                if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
-                    diceNode.position = SCNVector3(x: hitResults.worldTransform.columns.3.x,
-                                                   y: hitResults.worldTransform.columns.3.y + diceNode.boundingSphere.radius, // to have the dice sit ON the plane, and not get cut by it
-                                                   z: hitResults.worldTransform.columns.3.z)
-                    diceArray.append(diceNode)
-                    
-                    sceneView.scene.rootNode.addChildNode(diceNode)
-                    roll(dice: diceNode)
-                }
+            if let hitResult = results.first {
+                addDice(atLocation: hitResult)
             }
         }
+    }
+    
+    func addDice(atLocation location: ARHitTestResult) {
+        // Create a new scene
+        let diceScene = SCNScene(named: "art.scnassets/diceCollada.scn")!
+        if let diceNode = diceScene.rootNode.childNode(withName: "Dice", recursively: true) {
+            diceNode.position = SCNVector3(x: location.worldTransform.columns.3.x,
+                                           y: location.worldTransform.columns.3.y + diceNode.boundingSphere.radius, // to have the dice sit ON the plane, and not get cut by it
+                z: location.worldTransform.columns.3.z)
+            diceArray.append(diceNode)
+            
+            sceneView.scene.rootNode.addChildNode(diceNode)
+            roll(dice: diceNode)
+        }
+        
     }
     
     func rollAll() {
@@ -116,6 +107,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             }
         }
     }
+    
+    //MARK: - ARSCENEViewDelegateMethods
     
     // Tells the delegate that a SceneKit node corresponding to a new AR anchor has been added to the scene
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
